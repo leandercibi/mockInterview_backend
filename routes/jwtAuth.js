@@ -12,24 +12,24 @@ const authorize = require("../middleware/authorize");
 
 router.post("/register", validInfo,async (req, res) => {
   const { name,email,educational_qualification,curr_designation,curr_organisation,domain,skills,experience,password } = req.body;
-  console.log("entered register",{email});
+  console.log("entered register",email);
   try {
-    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+    const user = await pool.query('SELECT * FROM "User" WHERE email = $1', [
       email
     ]);
-
+    console.log('got user');
     if (user.rows.length > 0) {
       return res.status(401).json("User already exist!");
     }
-
+    console.log('in 2nd step');
     const salt = await bcrypt.genSalt(10);
     const bcryptPassword = await bcrypt.hash(password, salt);
 
     let newUser = await pool.query(
-      "INSERT INTO users (name, email,education,current_designation,current_organisation,domain,skills,experience,password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
+      'INSERT INTO "User" (name,email,education,curr_designation,curr_organisation,domain,skills,experience,password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
       [name, email,educational_qualification,curr_designation,curr_organisation,domain,skills,experience,bcryptPassword]
     );
-
+    console.log('3rd ');
     const jwtToken = jwtGenerator(newUser.rows[0].user_id);
 
     return res.json({ jwtToken });
@@ -44,11 +44,11 @@ router.post("/login", validInfo, async (req, res) => {
   console.log("entered login",email);
   try {
     console.log('first step');
-    const user =  await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    const user =  await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
     console.log('tried first step',user);
 
     if (user.rows.length === 0) {
-      return res.status(401).json("Invalid Credential");
+      return res.status(401).json("We cannot find an account with that Email address");
     }
     console.log('tried second step',password);
     const validPassword = await bcrypt.compare(
