@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const authorize = require("../middleware/authorize");
+const db_query = require("../middleware/db_query")
 const pool = require("../db");
 
 router.post("/", authorize, async (req, res) => {
@@ -23,4 +24,7 @@ router.post("/", authorize, async (req, res) => {
   }
 });
 
+router.post("/query",db_query, async(req,res) => {
+  
+})
 module.exports = router;
