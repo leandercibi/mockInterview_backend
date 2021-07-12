@@ -41,14 +41,16 @@ router.post("/register", validInfo,async (req, res) => {
 
 router.post("/login", validInfo, async (req, res) => {
   const { email, password } = req.body;
-  console.log("entered login",email);
+  console.log("entered login",email,password);
   try {
     console.log('first step');
     const user =  await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
     console.log('tried first step',user);
 
     if (user.rows.length === 0) {
+      console.log('cant find');
       return res.status(401).json("We cannot find an account with that Email address");
+      
     }
     console.log('tried second step',password);
     const validPassword = await bcrypt.compare(
