@@ -24,7 +24,4 @@ router.post("/", authorize, async (req, res) => {
   }
 });
 
-router.post("/query",db_query, async(req,res) => {
-  
-})
 module.exports = router;

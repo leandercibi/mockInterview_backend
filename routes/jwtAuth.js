@@ -14,7 +14,7 @@ router.post("/register", validInfo,async (req, res) => {
   const { name,email,educational_qualification,curr_designation,curr_organisation,domain,skills,experience,password } = req.body;
   console.log("entered register",email);
   try {
-    const user = await pool.query('SELECT * FROM "User" WHERE email = $1', [
+    const user = await pool.query('SELECT * FROM "user" WHERE email = $1', [
       email
     ]);
     console.log('got user');
@@ -26,7 +26,7 @@ router.post("/register", validInfo,async (req, res) => {
     const bcryptPassword = await bcrypt.hash(password, salt);
 
     let newUser = await pool.query(
-      'INSERT INTO "User" (name,email,education,curr_designation,curr_organisation,domain,skills,experience,password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+      'INSERT INTO "user" (name,email,education,curr_designation,curr_organisation,domain,skills,experience,password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
       [name, email,educational_qualification,curr_designation,curr_organisation,domain,skills,experience,bcryptPassword]
     );
     console.log('3rd ');
@@ -41,14 +41,16 @@ router.post("/register", validInfo,async (req, res) => {
 
 router.post("/login", validInfo, async (req, res) => {
   const { email, password } = req.body;
-  console.log("entered login",email);
+  console.log("entered login",email,password);
   try {
     console.log('first step');
-    const user =  await pool.query('SELECT * FROM "User" WHERE email = $1', [email]);
+    const user =  await pool.query('SELECT * FROM "user" WHERE email = $1', [email]);
     console.log('tried first step',user);
 
     if (user.rows.length === 0) {
+      console.log('cant find');
       return res.status(401).json("We cannot find an account with that Email address");
+      
     }
     console.log('tried second step',password);
     const validPassword = await bcrypt.compare(
