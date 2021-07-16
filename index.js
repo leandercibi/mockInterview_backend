@@ -13,6 +13,8 @@ app.use("/authentication", require("./routes/jwtAuth"));
 
 app.use("/dashboard", require("./routes/dashboard"));
 
+app.use("/interviewWithMentor", require("./routes/interviewWithMentor"));
+
 app.get("/",(req,res)=> {
   res.json({message: "Welcome to HeyPM"})
 });
