@@ -2,7 +2,7 @@ const Pool = require("pg").Pool;
 
 const pool = new Pool({
   host: "postgresql-38450-0.cloudclusters.net",
-  user: "user",
+  user: "pushkar",
   password: "Pushkar@2020",
   port: 38450,
   database: "mock_int"
