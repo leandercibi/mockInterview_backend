@@ -14,7 +14,7 @@ const token = jwt.sign(payload, config.APISecret);
 
 
 router.get("/",async(req,res) => {
-    const mentor_list =  await pool.query('select user_id as id,name,curr_organisation as company,experience,rating,time1,time2,time3,curr_designation as role,domain,charge_per_session as price from public."user" inner join public.mentor On public."user".user_id=public.mentor.mentor_id');    return res.send(mentor_list.rows);
+    const mentor_list =  await pool.query('select user_id as id,name,curr_organisation as company,experience,curr_designation as role,domain,charge_per_session as price from public."user" inner join public.mentor On public."user".user_id=public.mentor.mentor_id');    return res.send(mentor_list.rows);
 })
 
 
@@ -23,12 +23,12 @@ router.post("/query",db_query, async(req,res) => {
 })
 
 router.post("/generatemeetlink", async(req,res) => {
-    const {user_id,mentor_id,date,time} = req.body
+    const {user_email,mentor_id,date,time} = req.body
     let newUser = await pool.query(
         'INSERT INTO public.book_interview (time_slot,user_id,mentor_id,booked_on) VALUES ($1, $2, $3, $4) RETURNING *',
         [time,user_id,mentor_id,date]
       );
-    const user_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[user_id]);
+    //const user_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[user_id]);
     const mentor_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[mentor_id]);
     const u_email = user_email.rows[0].email;
     const m_email = mentor_email.rows[0].email;
@@ -93,6 +93,8 @@ router.post("/generatemeetlink", async(req,res) => {
                     return res.status(200).send('Success');        
                 }
                 });
+
+                
         }) .catch(function (err) {
             // API call failed...
             console.log('API call failed, reason ', err);
@@ -127,6 +129,9 @@ router.post("/get_timing", async(req,res) => {
         }
 
     };
+    if (time1==null && time2==null && time3==null){
+        return res.json()
+    } 
     return res.json({time1,time2,time3});
 })
 
