@@ -24,13 +24,16 @@ router.post("/query",db_query, async(req,res) => {
 
 router.post("/generatemeetlink", async(req,res) => {
     const {user_email,mentor_id,date,time} = req.body
+    let user_id = await pool.query('SELECT user_id FROM "user" WHERE email = $1',[user_email]);
+    user_id = user_id.rows[0].user_id;
+
     let newUser = await pool.query(
         'INSERT INTO public.book_interview (time_slot,user_id,mentor_id,booked_on) VALUES ($1, $2, $3, $4) RETURNING *',
         [time,user_id,mentor_id,date]
       );
     //const user_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[user_id]);
     const mentor_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[mentor_id]);
-    const u_email = user_email.rows[0].email;
+    const u_email = user_email;
     const m_email = mentor_email.rows[0].email;
     const start_time = date.concat('T',time,'Z');
     console.log(u_email,m_email,start_time);
