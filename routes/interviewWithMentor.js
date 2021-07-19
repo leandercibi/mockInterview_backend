@@ -24,8 +24,8 @@ router.post("/query",db_query, async(req,res) => {
 
 router.post("/generatemeetlink", async(req,res) => {
     const {user_email,mentor_id,date,time} = req.body
-    let user_id = await pool.query('SELECT user_id FROM "user" WHERE email = $1',[user_email]);
-    user_id = user_id.rows[0].user_id;
+    const response = await pool.query('SELECT user_id FROM "user" WHERE email = $1',[user_email]);
+    const user_id = response.rows[0].user_id;
 
     let newUser = await pool.query(
         'INSERT INTO public.book_interview (time_slot,user_id,mentor_id,booked_on) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -36,6 +36,7 @@ router.post("/generatemeetlink", async(req,res) => {
     const u_email = user_email;
     const m_email = mentor_email.rows[0].email;
     const start_time = date.concat('T',time,'Z');
+    console.log(start_time)
     console.log(u_email,m_email,start_time);
     const options = {
         //You can use a different uri if you're making an API call to a different Zoom endpoint.
