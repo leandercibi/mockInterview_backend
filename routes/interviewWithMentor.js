@@ -133,8 +133,27 @@ router.post("/get_timing", async(req,res) => {
 
     };
     if (time1==null && time2==null && time3==null){
-        return res.json()
-    } 
+        return res.json({})
+    }
+    if (time1==null && time2==null && time3!=null){
+        return res.json({time3})
+    }
+    if (time1==null && time2!=null && time3==null){
+        return res.json({time2})
+    }
+    if (time1!=null && time2==null && time3==null){
+        return res.json({time1})
+    }
+    if (time1!=null && time2!=null && time3==null){
+        return res.json({time1,time2})
+    }
+    if (time1==null && time2!=null && time3!=null){
+        return res.json({time2,time3})
+    }
+    if (time1!=null && time2==null && time3!=null){
+        return res.json({time1,time3})
+    }
+
     return res.json({time1,time2,time3});
 })
 
