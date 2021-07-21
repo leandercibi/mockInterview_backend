@@ -33,23 +33,28 @@ router.post("/generatemeetlink", async(req,res) => {
       );
     //const user_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[user_id]);
     const mentor_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[mentor_id]);
+    const mr_name = await pool.query('SELECT name FROM "user" WHERE user_id = $1',[mentor_id]);
+    const mt_name = await pool.query('SELECT name FROM "user" WHERE user_id = $1',[user_id]);
+    const mentor_name = mr_name.rows[0].name;
+    const mentee_name = mt_name.rows[0].name;
     const u_email = user_email;
     const m_email = mentor_email.rows[0].email;
     const start_time = date.concat('T',time,'Z');
     console.log(start_time)
-    console.log(u_email,m_email,start_time);
+    console.log(mentor_name,mentee_name,mr_name,mt_name);
     const options = {
         //You can use a different uri if you're making an API call to a different Zoom endpoint.
         uri: "https://api.zoom.us/v2/users/me/meetings", 
+        method: "POST",
         auth: {
             'bearer': token
         },
         headers: {
             'User-Agent': 'Zoom-api-Jwt-Request',
-            'content-type': 'application/json'
-        },
+            'content-type': 'application/json',
+        },  
         body: {
-            "topic": "test zoom",
+            "topic": "Meeting",
             "type":2,
             "start_time": start_time,
             "duration":2,
@@ -71,24 +76,29 @@ router.post("/generatemeetlink", async(req,res) => {
         //printing the response on the console
             console.log('User has', response);
         //console.log(typeof response);
-            resp = response['meetings'][0]
-            url = resp.join_url
+            url = response['join_url']
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
                     user: 'heypm2020@gmail.com',
-                    pass: 'usermentor123'
+                    pass: 'mentormentee2020'
                 }
                 });
                 
-            const mailOptions = {
+            const mailOptionsmentee = {
                 from: 'heypm2020@gmail.com',
                 to: u_email,
                 subject: 'Meeting link with Mentor',
-                text: 'here is the meeting url  ' + (String(url))
+                text: 'hey mentee, you have scheduled a meeting with '+mentor_name +' on '+String(date)+' at '+String(time)+'. Here is the url for that meeting : ' + String(url)
+                };
+            const mailOptionsmentor = {
+                from: 'heypm2020@gmail.com',
+                to: m_email,
+                subject: 'Meeting link with Mentee',
+                text: 'hey mentor, ' +mentee_name+' have scheduled a meeting with you on '+String(date)+' at '+String(time)+'. Here is the url for that meeting : ' + String(url)
                 };
         
-                transporter.sendMail(mailOptions, function(error, info){
+                transporter.sendMail(mailOptionsmentee, function(error, info){
                 if (error) {
                     console.log(error);
                     return res.status(500).send(error);
@@ -97,6 +107,15 @@ router.post("/generatemeetlink", async(req,res) => {
                     return res.status(200).send('Success');        
                 }
                 });
+                transporter.sendMail(mailOptionsmentor, function(error, info){
+                    if (error) {
+                        console.log(error);
+                        return res.status(500).send(error);
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                        return res.status(200).send('Success');        
+                    }
+                    });
 
                 
         }) .catch(function (err) {
