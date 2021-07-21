@@ -40,8 +40,6 @@ router.post("/generatemeetlink", async(req,res) => {
     const u_email = user_email;
     const m_email = mentor_email.rows[0].email;
     const start_time = date.concat('T',time,'Z');
-    console.log(start_time)
-    console.log(mentor_name,mentee_name,mr_name,mt_name);
     const options = {
         //You can use a different uri if you're making an API call to a different Zoom endpoint.
         uri: "https://api.zoom.us/v2/users/me/meetings", 
@@ -73,9 +71,6 @@ router.post("/generatemeetlink", async(req,res) => {
     let url;
     rp(options)
         .then(function (response) {
-        //printing the response on the console
-            console.log('User has', response);
-        //console.log(typeof response);
             url = response['join_url']
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
@@ -119,7 +114,6 @@ router.post("/generatemeetlink", async(req,res) => {
 
                 
         }) .catch(function (err) {
-            // API call failed...
             console.log('API call failed, reason ', err);
             return res.status(500).send('api error');
         });
@@ -132,15 +126,11 @@ router.post("/get_timing", async(req,res) => {
     const {date, mentor_id} = req.body; 
     let time = await pool.query('SELECT time1,time2,time3 FROM public.mentor WHERE mentor_id = $1',[mentor_id]);
     const booked_slot = await pool.query('SELECT time_slot FROM public.book_interview WHERE mentor_id = $1 and booked_on = $2 ',[mentor_id,date]);
-    console.log('entered')
     time1 = time.rows[0].time1
     time2 = time.rows[0].time2
     time3 = time.rows[0].time3
-    console.log(booked_slot)
     for (let i = 0; i < booked_slot.rows.length; i++) {
-        console.log('entered loop')
         let time_temp = String(booked_slot.rows[i].time_slot);
-        console.log(time_temp,time1,time2,time3);
         if(time1==time_temp){
             time1= null;
         }
