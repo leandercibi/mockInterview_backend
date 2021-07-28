@@ -14,7 +14,7 @@ const token = jwt.sign(payload, config.APISecret);
 
 
 router.get("/",async(req,res) => {
-    const mentor_list =  await pool.query('select user_id as id,name,curr_organisation as company,experience,curr_designation as role,domain,charge_per_session as price from public."user" inner join public.mentor On public."user".user_id=public.mentor.mentor_id');    return res.send(mentor_list.rows);
+    const mentor_list =  await pool.query('select user_id as id,name,curr_organisation as company,experience,curr_designation as role,domain,charge_per_session as price,linkedin from public."user" inner join public.mentor On public."user".user_id=public.mentor.mentor_id');    return res.send(mentor_list.rows);
 })
 
 
