@@ -88,7 +88,7 @@ router.post("/generatemeetlink", async(req,res) => {
                 };
             const mailOptionsmentor = {
                 from: 'heypm2020@gmail.com',
-                to: m_email,
+                to: u_email,
                 subject: 'Meeting link with Mentee',
                 text: 'hey mentor, ' +mentee_name+' have scheduled a meeting with you on '+String(date)+' at '+String(time)+'. Here is the url for that meeting : ' + String(url)
                 };
