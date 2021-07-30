@@ -34,9 +34,11 @@ router.post("/generatemeetlink", async(req,res) => {
     //const user_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[user_id]);
     const mentor_email = await pool.query('SELECT email FROM "user" WHERE user_id = $1',[mentor_id]);
     const mr_name = await pool.query('SELECT name FROM "user" WHERE user_id = $1',[mentor_id]);
-    const mt_name = await pool.query('SELECT name FROM "user" WHERE user_id = $1',[user_id]);
+    const mt_details = await pool.query('SELECT name,curr_organisation,curr_designation FROM "user" WHERE user_id = $1',[user_id]);
     const mentor_name = mr_name.rows[0].name;
-    const mentee_name = mt_name.rows[0].name;
+    const mentee_name = mt_details.rows[0].name;
+    const mentee_company = mt_details.rows[0].curr_organisation;
+    const mentee_role = mt_details.rows[0].curr_designation;
     const u_email = user_email;
     const m_email = mentor_email.rows[0].email;
     const start_time = date.concat('T',time,'Z');
@@ -79,18 +81,39 @@ router.post("/generatemeetlink", async(req,res) => {
                     pass: 'mentormentee2020'
                 }
                 });
-                
+        
+        
+            
             const mailOptionsmentee = {
                 from: 'heypm2020@gmail.com',
                 to: u_email,
-                subject: 'Meeting link with Mentor',
-                text: 'hey mentee, you have scheduled a meeting with '+mentor_name +' on '+String(date)+' at '+String(time)+'. Here is the url for that meeting : ' + String(url)
-                };
+                subject: 'You have scheduled a mock interview with prep4PM',
+                text: 'Hi mentee,\
+\nYou have scheduled a mock interview session with '+mentor_name+' mentor on prep4PM on '+String(date)+' at '+String(time)+'.\
+\n\
+\nHere is the Zoom link for that meeting: '+String(url) +' .\
+\n\
+\nWe are continuously developing our website. Your mentor will contact you shortly with a calendar invite.\
+\n\
+\nHave a great session,\
+\nprep4PM team'
+};
             const mailOptionsmentor = {
                 from: 'heypm2020@gmail.com',
-                to: u_email,
-                subject: 'Meeting link with Mentee',
-                text: 'hey mentor, ' +mentee_name+' have scheduled a meeting with you on '+String(date)+' at '+String(time)+'. Here is the url for that meeting : ' + String(url)
+                to: m_email,
+                subject: 'New Mock Interview Schedule from prep4PM',
+                text: 'Hi prep4PM mentor,\
+\n'+mentee_name+' has scheduled a mock interview session with you on '+String(date)+' at '+String(time)+'.\
+\nHere is the Zoom link for that meeting: '+String(url) +' .\
+\n\
+\nDetails of the mentee \
+\nEmail: '+u_email+'\
+\nCompany: '+mentee_company+'\
+\nDesignation : '+mentee_role+'\
+\n\
+\nWe are continuously developing our website. To avoid confusion, please send a calendar invite to the mentee at email ID of the mentee.\
+\nHave a great session,\
+\nprep4PM team'
                 };
         
                 transporter.sendMail(mailOptionsmentee, function(error, info){
